@@ -1,13 +1,12 @@
 ###############
-MagnusBilling 6
+KesherBilling 6.1
 ###############
 
-Do you like this software? Star the project and become a [stargazer](https://github.com/magnussolution/magnusbilling6/stargazers).
+# KesherBilling 6.1
 
+Voip system for Asterisk
 
-# MagnusBilling 6
-
-Voip sistem to Asterisk.
+Based on [MagnusBilling 6](https://github.com/magnussolution/magnusbilling6/), but with some fixes that were rejected by the developers.
 
 ## Getting Started
 
