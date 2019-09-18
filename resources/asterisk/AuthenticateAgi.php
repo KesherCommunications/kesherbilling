@@ -24,6 +24,7 @@ class AuthenticateAgi
     {
         $agi->verbose('AuthenticateUser ' . $MAGNUS->accountcode, 15);
         $authentication = false;
+        $force_playback = false;
 
         /* TRY WITH THE CALLERID AUTHENTICATION*/
         $authentication = AuthenticateAgi::callerIdAuthenticate($MAGNUS, $agi, $authentication);
@@ -44,12 +45,13 @@ class AuthenticateAgi
 
         if ($authentication == false || $MAGNUS->active != 1) {
             $prompt = "prepaid-auth-fail";
+            $force_playback = true;
         } else {
             $prompt = $MAGNUS->check_expirationdate_customer($agi);
         }
 
         if (strlen($prompt) > 0) {
-            $MAGNUS->executePlayAudio($prompt, $agi);
+            $MAGNUS->executePlayAudio($prompt, $agi, $force_playback);
             $MAGNUS->hangup($agi);
         }
 
