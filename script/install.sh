@@ -561,6 +561,10 @@ exten => h,1,hangup()
 exten => 111,1,VoiceMailMain(${CHANNEL(peername)}@billing)
   same => n,Hangup()
 
+[trunk_answer_handler]
+;needed for accurate billing - https://github.com/magnussolution/magnusbilling6/issues/331
+exten => s,1,Set(MASTER_CHANNEL(trunkanswertime)=${EPOCH})
+exten => s,n,Return()
 ' > /etc/asterisk/extensions_magnus.conf
 
 echo "

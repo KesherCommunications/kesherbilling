@@ -756,7 +756,13 @@ class CalcAgi
 
             $MAGNUS->startRecordCall($agi);
             try {
-                $MAGNUS->run_dial($agi, $dialstr, $MAGNUS->agiconfig['dialcommand_param']
+                $dial_param = $MAGNUS->agiconfig['dialcommand_param'];
+                if (!isset($dial_param) || trim($dial_param) === '')
+                {
+                    $dial_param = ',';
+                }
+                $dial_param = $dial_param . 'U(trunk_answer_handler)';
+                $MAGNUS->run_dial($agi, $dialstr, $dial_param
                     , $this->tariffObj[$k]['rc_directmedia'], $timeout);
             } catch (Exception $e) {
                 //
@@ -768,7 +774,14 @@ class CalcAgi
                 $this->dialstatus        = 'ANSWER';
             } else {
 
-                $answeredtime            = $agi->get_variable("ANSWEREDTIME");
+                $answeredtime            = $agi->get_variable("trunkanswertime");
+                if (!isset($answeredtime['data']) || trim($answeredtime['data']) === '') {
+                    //support for installations that do not have the trunk_answer_handler context in the dialplan
+                    $answeredtime = $agi->get_variable("ANSWEREDTIME");
+                } else {
+                    $answeredtime['data'] = time() - $answeredtime['data'];
+                }
+
                 $this->real_answeredtime = $this->answeredtime = $answeredtime['data'];
                 $dialstatus              = $agi->get_variable("DIALSTATUS");
                 $this->dialstatus        = $dialstatus['data'];
