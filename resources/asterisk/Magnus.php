@@ -355,13 +355,18 @@ class Magnus
         $mycur = 1;
 
         $credit_cur = $credit / $mycur;
+        if($credit_cur < 0)
+        {
+            $credit_cur = 0;
+        }
+        $credit_cur = round($credit_cur ,2);
 
         list($units, $cents) = explode('.', $credit_cur);
 
-        if ($credit > 1) {
-            $unit_audio = "credit";
-        } else {
+        if ($units > 1 || ($units == 0 && $cents == 0)) {
             $unit_audio = "credits";
+        } else {
+            $unit_audio = "credit";
         }
 
         $cents_audio = "prepaid-cents";
@@ -385,19 +390,19 @@ class Magnus
             $agi->say_number(0);
             $agi->stream_file($unit_audio, '#');
         } else {
-            if ($units > 1) {
-                $agi->say_number($units);
-                $agi->stream_file($unit_audio, '#');
-            } else {
+
+            if ($units > 0) {
                 $agi->say_number($units);
                 $agi->stream_file($unit_audio, '#');
             }
 
-            if ($units > 0 && $cents > 0) {
-                $agi->stream_file('vm-and', '#');
-            }
             if ($cents > 0) {
+                if ($units > 0) {
+                    $agi->stream_file('vm-and', '#');
+                }
+
                 $agi->say_number($cents);
+
                 if ($cents > 1) {
                     $agi->stream_file($cents_audio, '#');
                 } else {
