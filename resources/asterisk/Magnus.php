@@ -208,8 +208,14 @@ class Magnus
             }
             $agi->verbose("USE_DNID DESTINATION -> " . $this->destination, 10);
         } else {
+
+            if (!isset($this->agiconfig['dtmfEntryTimeout']) || trim($this->agiconfig['dtmfEntryTimeout']) === '')
+            {
+                $this->agiconfig['dtmfEntryTimeout'] = 10000;
+            }
+
             $agi->verbose('Request the destination number' . $prompt_enter_dest, 25);
-            $res_dtmf = $agi->get_data($prompt_enter_dest, 10000, 20);
+            $res_dtmf = $agi->get_data($prompt_enter_dest, $this->agiconfig['dtmfEntryTimeout'], 20);
             $agi->verbose("RES DTMF -> " . $res_dtmf["result"], 10);
             $this->destination = $res_dtmf["result"];
             $this->dnid        = $res_dtmf["result"];
