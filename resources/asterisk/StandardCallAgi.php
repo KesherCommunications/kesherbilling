@@ -12,6 +12,11 @@ class StandardCallAgi
 
         // CALL AUTHENTICATE AND WE HAVE ENOUGH CREDIT TO GO AHEAD
         if (AuthenticateAgi::authenticateUser($agi, $MAGNUS) == 1) {
+
+            if ($MAGNUS->agiconfig['say_balance_before_call'] == 1) {
+                $MAGNUS->sayBalance($agi, $MAGNUS->credit);
+            }
+
             for ($i = 0; $i < $MAGNUS->agiconfig['number_try']; $i++) {
                 // CREATE A DIFFERENT UNIQUEID FOR EACH TRY
                 if ($i > 0) {
