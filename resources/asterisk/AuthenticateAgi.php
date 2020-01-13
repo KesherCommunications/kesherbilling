@@ -22,7 +22,7 @@ class AuthenticateAgi
 {
     public static function authenticateUser($agi, $MAGNUS)
     {
-        $agi->verbose('AuthenticateUser ' . $MAGNUS->accountcode, 15);
+        $agi->verbose('AuthenticateUser ' . $MAGNUS->PAI, 15);
         $authentication = false;
         $force_playback = false;
 
@@ -74,16 +74,32 @@ class AuthenticateAgi
 
     public static function callerIdAuthenticate(&$MAGNUS, &$agi, $authentication)
     {
-        if ($authentication == false && $MAGNUS->agiconfig['cid_enable'] == 1 && is_numeric($MAGNUS->CallerID) && $MAGNUS->CallerID > 0) {
-            $agi->verbose('Try callerID authentication ' . $MAGNUS->CallerID, 15);
-            $sql           = "SELECT * FROM pkg_callerid WHERE cid = '$MAGNUS->CallerID' LIMIT 1";
+        if ($authentication == false && $MAGNUS->agiconfig['cid_enable'] == 1 &&
+            (
+                (is_numeric($MAGNUS->CallerID) && $MAGNUS->CallerID > 0) ||
+                (is_numeric($MAGNUS->PAI) && $MAGNUS->PAI > 0)
+            )
+        ){
+
+            $calleridforauthentication = "";
+
+            if(is_numeric($MAGNUS->PAI) && $MAGNUS->PAI > 0) {
+                $calleridforauthentication = $MAGNUS->PAI;
+                $agi->verbose('Try callerID authentication using withheld CallerID ' . $calleridforauthentication, 15);
+            } else {
+                $calleridforauthentication = $MAGNUS->CallerID;
+                $agi->verbose('Try callerID authentication using normal CallerID ' . $calleridforauthentication, 15);
+            }
+
+
+            $sql           = "SELECT * FROM pkg_callerid WHERE cid = '$calleridforauthentication' LIMIT 1";
             $modelCallerid = $agi->query($sql)->fetch(PDO::FETCH_OBJ);
 
             if (isset($modelCallerid->id)) {
                 $sql       = "SELECT *, u.id id, u.id_user id_user FROM pkg_user u INNER JOIN pkg_plan p ON u.id_plan = p.id WHERE u.id = '$modelCallerid->id_user' LIMIT 1";
                 $modelUser = $agi->query($sql)->fetch(PDO::FETCH_OBJ);
                 AuthenticateAgi::setMagnusAttrubutes($MAGNUS, $agi, $modelUser);
-                $agi->verbose("AUTHENTICATION BY CALLERID:" . $MAGNUS->CallerID, 6);
+                $agi->verbose("AUTHENTICATION BY CALLERID:" . $calleridforauthentication, 6);
                 $authentication = true;
             }
         }

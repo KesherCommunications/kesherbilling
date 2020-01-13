@@ -762,6 +762,12 @@ class CalcAgi
                     $dial_param = ',';
                 }
                 $dial_param = $dial_param . 'U(trunk_answer_handler)';
+
+                if( strlen($MAGNUS->PAI) > 0 )
+                {
+                    $dial_param = $dial_param . 'b(handlers^trunk_dial_handler^1)';
+                }
+
                 $MAGNUS->run_dial($agi, $dialstr, $dial_param
                     , $this->tariffObj[$k]['rc_directmedia'], $timeout);
             } catch (Exception $e) {
