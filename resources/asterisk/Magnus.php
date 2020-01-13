@@ -245,14 +245,14 @@ class Magnus
         $this->dnid        = preg_replace('/\-|\.|\(|\)/', '', $this->dnid);
 
         if ($this->destination <= 0) {
-            $prompt = "prepaid-invalid-digits";
-            $agi->verbose($prompt, 3);
+
             if (is_numeric($this->destination)) {
                 $agi->answer();
             }
 
-            $agi->stream_file($prompt, '#');
-            $this->hangup($agi);
+            CustomerMenuAgi::customerMenu($agi, $this);
+
+            return 2;
         }
 
         if ($this->dnid == 150) {
@@ -303,7 +303,7 @@ class Magnus
                 $try_num++;
                 $this->checkNumber($agi, $CalcAgi, $try_num);
             }
-            return false;
+            return 0;
         } else {
             $agi->verbose("NUMBER TARIFF FOUND -> " . $CalcAgi->number_trunk, 10);
         }
@@ -317,13 +317,13 @@ class Magnus
             $modelAgendCredit = $agi->query($sql)->fetch(PDO::FETCH_OBJ);
             if (isset($modelAgendCredit->credit) && $modelAgendCredit->credit + $modelAgendCredit->creditlimit < 0) {
                 $this->executePlayAudio("prepaid-no-enough-credit", $agi);
-                return false;
+                return 0;
             }
         }
 
         if (!$res_all_calcultimeout) {
             $this->executePlayAudio("prepaid-no-enough-credit", $agi);
-            return false;
+            return 0;
         }
 
         /* calculate timeout*/
@@ -332,7 +332,7 @@ class Magnus
         $agi->verbose("timeout ->> $timeout", 15);
         $this->say_time_call($agi, $timeout, $CalcAgi->tariffObj[0]['rateinitial']);
 
-        return true;
+        return 1;
     }
 
     public function say_time_call($agi, $timeout, $rate = 0)
