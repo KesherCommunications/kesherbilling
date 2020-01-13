@@ -24,6 +24,7 @@ class Magnus
     public $idconfig = 1;
     public $agentUsername;
     public $CallerID;
+    public $PAI;
     public $channel;
     public $uniqueid;
     public $accountcode;
@@ -109,6 +110,25 @@ class Magnus
         $this->dnid        = $agi->request['agi_extension'];
 
         $this->CallerID = $agi->request['agi_callerid'];
+
+        if ( (is_numeric($this->CallerID) && $this->CallerID > 0) == false )
+        {
+            $this->PAI = $agi->get_variable('SIP_HEADER(P-Asserted-Identity)', true);
+
+            if( strlen($this->PAI)>0 ) {
+                $this->PAI = substr($this->PAI, strpos($this->PAI, ':') + 1);
+                $this->PAI = substr($this->PAI, 0, strpos($this->PAI, '@'));
+
+                if (substr($this->PAI, 0, 1) !== '0')
+                {
+                    $this->PAI = '0' . substr($this->PAI,2);
+                }
+            }
+
+            $agi->set_variable("MASTER_CHANNEL(PAI)", $this->PAI);
+
+        }
+
         $this->channel  = $agi->request['agi_channel'];
         $this->uniqueid = $agi->request['agi_uniqueid'];
 
