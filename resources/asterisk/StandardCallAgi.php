@@ -13,10 +13,6 @@ class StandardCallAgi
         // CALL AUTHENTICATE AND WE HAVE ENOUGH CREDIT TO GO AHEAD
         if (AuthenticateAgi::authenticateUser($agi, $MAGNUS) == 1) {
 
-            if ($MAGNUS->agiconfig['say_balance_before_call'] == 1) {
-                $MAGNUS->sayBalance($agi, $MAGNUS->credit);
-            }
-
             for ($i = 0; $i < $MAGNUS->agiconfig['number_try']; $i++) {
                 // CREATE A DIFFERENT UNIQUEID FOR EACH TRY
                 if ($i > 0) {
@@ -28,7 +24,15 @@ class StandardCallAgi
                     $MAGNUS->destination = $MAGNUS->dnid;
                 }
 
-                if ($MAGNUS->checkNumber($agi, $CalcAgi, $i, true) == 1) {
+                $result_checkNumber = $MAGNUS->checkNumber($agi, $CalcAgi, $i, true);
+
+                if ($result_checkNumber == 1) {
+
+                    if ($MAGNUS->agiconfig['say_balance_before_call'] == 1) {
+                        $MAGNUS->sayBalance($agi, $MAGNUS->credit);
+                    }
+
+
                     // PERFORM THE CALL
                     $result_callperf = $CalcAgi->sendCall($agi, $MAGNUS->destination, $MAGNUS);
 
@@ -43,9 +47,11 @@ class StandardCallAgi
                     if ($MAGNUS->agiconfig['say_balance_after_call'] == 1) {
                         $MAGNUS->sayBalance($agi, $MAGNUS->credit);
                     }
-                } else {
+                } elseif ($result_checkNumber==0) {
                     $MAGNUS->hangup($agi, 1);
                     exit;
+                } elseif ($result_checkNumber==2) {
+                    $i=-1;
                 }
 
                 $MAGNUS->agiconfig['use_dnid'] = 0;

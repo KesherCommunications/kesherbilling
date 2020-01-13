@@ -40,6 +40,7 @@ require_once 'SearchTariff.php';
 require_once 'SipCallAgi.php';
 require_once 'SipTransferAgi.php';
 require_once 'StandardCallAgi.php';
+require_once 'CustomerMenuAgi.php';
 require_once 'Magnus.php';
 require_once '/var/www/html/mbilling/protected/components/AsteriskAccess.php';
 
