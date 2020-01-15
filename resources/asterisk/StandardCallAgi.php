@@ -12,9 +12,13 @@ class StandardCallAgi
 
         // CALL AUTHENTICATE AND WE HAVE ENOUGH CREDIT TO GO AHEAD
         if (AuthenticateAgi::authenticateUser($agi, $MAGNUS) == 1) {
-
+            $count = 0;
             for ($i = 0; $i < $MAGNUS->agiconfig['number_try']; $i++) {
                 // CREATE A DIFFERENT UNIQUEID FOR EACH TRY
+                $count++;
+
+                $agi->verbose("LOOP COUNT -> " . $count, 10);
+
                 if ($i > 0) {
                     $MAGNUS->uniqueid = $MAGNUS->uniqueid + 1000000000;
                 }
@@ -50,8 +54,11 @@ class StandardCallAgi
                 } elseif ($result_checkNumber==0) {
                     $MAGNUS->hangup($agi, 1);
                     exit;
-                } elseif ($result_checkNumber==2) {
-                    $i=-1;
+                } elseif ($count>=5) {
+                    $MAGNUS->hangup($agi, 1);
+                    exit;
+                } elseif ($result_checkNumber==2){
+                    $i = -1;
                 }
 
                 $MAGNUS->agiconfig['use_dnid'] = 0;
